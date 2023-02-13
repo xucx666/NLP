@@ -207,22 +207,22 @@ class TextBERT(nn.Module):
         self.dropout = nn.Dropout(args.dropout)
         self.classifier = nn.Linear(bert_dim, self.output_dim)
 
-    def forward(self, x, token_type_id, attn_masks):
-        outputs = self.bert(x, attention_mask=attn_masks, token_type_ids=token_type_id)
+    def forward(self, input_ids, token_type_id, attn_masks):
+        outputs = self.bert(input_ids, attention_mask=attn_masks, token_type_ids=token_type_id)
         pooled_output = outputs[1]
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
         return logits
 
-    def forward_mix_embed(self, x1, token_type1, att1, x2, token_type2, att2, lam):
-        outputs = self.bert.forward_mix_embed(x1, token_type1, att1, x2, token_type2, att2, lam)
+    def forward_mix_embed(self, input_ids1, token_type1, att1, input_ids2, token_type2, att2, lam):
+        outputs = self.bert.forward_mix_embed(input_ids1, token_type1, att1, input_ids2, token_type2, att2, lam)
         pooled_output = outputs[1]
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
         return logits
 
-    def forward_mix_sent(self, x1, token_type1, att1, x2, token_type2, att2, lam):
-        logits1 = self.forward(x1, token_type1, att1)
-        logits2 = self.forward(x2, token_type2, att2)
+    def forward_mix_sent(self, input_ids1, token_type1, att1, input_ids2, token_type2, att2, lam):
+        logits1 = self.forward(input_ids1, token_type1, att1)
+        logits2 = self.forward(input_ids2, token_type2, att2)
         y = lam * logits1 + (1.0 - lam) * logits2
         return y
