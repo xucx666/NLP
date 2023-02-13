@@ -181,7 +181,7 @@ def pad_batch(batchs, pad_value=0):
     return (input_ids, input_masks, segment_ids, labels)
 
 
-def get_loader(args, mode):
+def get_loader(args, mode, num_workers=2):
     tokenizer = BertTokenizer.from_pretrained(os.path.join(args.bert_dir, 'vocab.txt'))
     processer = MyProcessor()
     if mode == 'train':
@@ -195,7 +195,8 @@ def get_loader(args, mode):
         examples = processer.get_test_examples(args.data_dir)
     features = convert_examples_to_features(examples, tokenizer)
     dataset = MyDataset(features)
-    data_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=pad_batch)
+    data_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=pad_batch,
+                             num_workers=num_workers)
     return data_loader
 
 
